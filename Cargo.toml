@@ -2,7 +2,12 @@
 name = "solana-presale"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+license = "WTFPL"
+publish = false
 
 [dependencies]
+solana-program = "1.17.16"
+thiserror = "1.0.56"
+
+[lib]
+crate-type = ["cdylib", "lib"]
