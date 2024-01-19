@@ -15,6 +15,9 @@ pub enum PresaleError {
     /// Invalid presale owner account
     #[error("Invalid presale owner account")]
     InvalidPresaleOwnerAccount,
+    /// Insufficient presale token balance
+    #[error("Presale token balance not enough to cover trade")]
+    InsufficientPresaleTokenBalance,
     /// Not Rent Exempt
     #[error("Not Rent Exempt")]
     NotRentExempt,

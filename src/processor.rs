@@ -105,6 +105,8 @@ impl Processor {
         let presale_info = Presale::unpack(&presale_account.try_borrow_data()?)?;
         let presale_token_program = next_account_info(account_info_iter)?;
         let pda_account = next_account_info(account_info_iter)?;
+        let presale_token_mint = Mint::unpack(&pda_token_account.data.borrow())?;
+        let amount_out = amount_in_sol * presale_info.token_price * (10u64.pow(presale_token_mint.decimals as u32));
 
         // Performs necessary checks
         if presale_info.token_account_pubkey != *pda_token_account.key {
@@ -116,6 +118,9 @@ impl Processor {
         if buyer.lamports() < amount_in_sol {
             return Err(ProgramError::InsufficientFunds);
         }
+        if pda_token_account_info.amount < amount_out {
+            return Err(PresaleError::InsufficientPresaleTokenBalance.into());
+        }
         // Transfers solana to the presale owner
         invoke_signed(
             &system_instruction::transfer(buyer.key, presale_owner_account.key, amount_in_sol),
@@ -123,8 +128,6 @@ impl Processor {
             &[]
         )?;
         // Transfer presale token to buyer
-        let presale_token_mint = Mint::unpack(&pda_token_account.data.borrow())?;
-        let amount_out = amount_in_sol * presale_info.token_price * (10u64.pow(presale_token_mint.decimals as u32));
         let token_transfer_ix = spl_token::instruction::transfer(
             presale_token_program.key,
             pda_token_account.key,
