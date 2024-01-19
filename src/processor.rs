@@ -109,6 +109,11 @@ impl Processor {
         let amount_out = amount_in_sol * presale_info.token_price * (10u64.pow(presale_token_mint.decimals as u32));
 
         // Performs necessary checks
+        let clock = Clock::from_account_info(buyer_presale_token_account)?;
+        let current_ts = clock.unix_timestamp as u64;
+        if current_ts < presale_info.start_ts {
+            return Err(PresaleError::PresaleNotStarted.into());
+        }
         if presale_info.token_account_pubkey != *pda_token_account.key {
             return Err(PresaleError::InvalidPresaleTokenAccount.into());
         }
