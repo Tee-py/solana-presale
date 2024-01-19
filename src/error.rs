@@ -16,3 +16,22 @@ impl From<EscrowError> for ProgramError {
         ProgramError::Custom(e as u32)
     }
 }
+
+#[derive(Error, Debug, Copy, Clone)]
+pub enum PresaleError {
+    /// Invalid instruction
+    #[error("Invalid Instruction")]
+    InvalidInstruction,
+    /// Invalid instruction
+    #[error("Presale Not Started")]
+    PresaleNotStarted,
+    /// Not Rent Exempt
+    #[error("Not Rent Exempt")]
+    NotRentExempt,
+}
+
+impl From<PresaleError> for ProgramError {
+    fn from(e: PresaleError) -> Self {
+        ProgramError::Custom(e as u32)
+    }
+}
