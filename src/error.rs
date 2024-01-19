@@ -22,9 +22,15 @@ pub enum PresaleError {
     /// Invalid instruction
     #[error("Invalid Instruction")]
     InvalidInstruction,
-    /// Invalid instruction
+    /// Presale not started
     #[error("Presale Not Started")]
     PresaleNotStarted,
+    /// Invalid presale token
+    #[error("Invalid presale token account")]
+    InvalidPresaleTokenAccount,
+    /// Invalid presale owner account
+    #[error("Invalid presale owner account")]
+    InvalidPresaleOwnerAccount,
     /// Not Rent Exempt
     #[error("Not Rent Exempt")]
     NotRentExempt,
