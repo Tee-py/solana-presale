@@ -1190,6 +1190,7 @@ name = "solana-presale"
 version = "0.1.0"
 dependencies = [
  "solana-program",
+ "thiserror",
 ]
 
 [[package]]
