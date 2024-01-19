@@ -1248,6 +1248,7 @@ dependencies = [
 name = "solana-presale"
 version = "0.1.0"
 dependencies = [
+ "arrayref",
  "solana-program",
  "spl-token",
  "thiserror",

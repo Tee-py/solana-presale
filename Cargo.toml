@@ -9,6 +9,7 @@ publish = false
 solana-program = "1.17.16"
 thiserror = "1.0.56"
 spl-token = {version = "4.0.0", features = ["no-entrypoint"]}
+arrayref = "0.3.7"
 
 [lib]
 crate-type = ["cdylib", "lib"]
