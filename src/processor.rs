@@ -24,8 +24,9 @@ impl Processor {
                 msg!("Instruction: InitPresale");
                 Self::process_init_presale(accounts, start_timestamp, token_price, program_id)
             },
-            PresaleInstruction::BuyToken { amount } => {
+            PresaleInstruction::BuyToken { amount_in_sol } => {
                 msg!("Instruction: BuyToken");
+                Self::process_buy_token(accounts, amount_in_sol, program_id)
             },
         }
     }
@@ -116,7 +117,7 @@ impl Processor {
             return Err(ProgramError::InsufficientFunds);
         }
         // Transfers solana to the presale owner
-        solana_program::program::invoke_signed(
+        invoke_signed(
             &system_instruction::transfer(buyer.key, presale_owner_account.key, amount_in_sol),
             &[buyer.clone()],
             &[]
