@@ -3,3 +3,7 @@
 script/node_modules
 test-ledger
 script/test-ledger
+script/.idea
+script/build
+script/keys
+script/src/*.js
