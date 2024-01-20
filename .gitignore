@@ -7,3 +7,4 @@ script/.idea
 script/build
 script/keys
 script/src/*.js
+src/build/solana_presale-keypair.json
