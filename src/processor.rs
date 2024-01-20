@@ -6,14 +6,16 @@ use solana_program::{
     pubkey::Pubkey,
     program_pack::{Pack, IsInitialized},
     sysvar::{rent::Rent, Sysvar},
-    system_instruction,
-    program::{invoke, invoke_signed}
+    program::{invoke, invoke_signed},
+    system_instruction
 };
-use spl_token::state::{Account as TokenAccount, Mint};
+use spl_token::state::{Account as TokenAccount};
 use solana_program::clock::Clock;
 use crate::{instruction::{PresaleInstruction}, error::{PresaleError}, state::Presale};
 
 pub struct Processor;
+
+const PRESALE_TOKEN_DECIMAL: u8 = 5;
 
 impl Processor {
 
@@ -25,7 +27,7 @@ impl Processor {
                 Self::process_init_presale(accounts, start_timestamp, token_price, program_id)
             },
             PresaleInstruction::BuyToken { amount_in_sol } => {
-                msg!("Instruction: BuyToken");
+                msg!("Instruction: BuyToken With Sol Amount: {}", amount_in_sol);
                 Self::process_buy_token(accounts, amount_in_sol, program_id)
             },
         }
@@ -54,11 +56,10 @@ impl Processor {
         if presale_info.is_initialized() {
             return Err(ProgramError::AccountAlreadyInitialized);
         }
-
         presale_info.is_initialized = true;
         presale_info.owner_pubkey = *owner.key;
         presale_info.token_account_pubkey = *presale_token_account.key;
-        presale_info.token_price = token_price;
+        presale_info.token_price = token_price * (10u64.pow(PRESALE_TOKEN_DECIMAL as u32));
         presale_info.start_ts = start_ts;
         Presale::pack(presale_info, &mut presale_account.try_borrow_mut_data()?)?;
 
@@ -104,12 +105,12 @@ impl Processor {
         let presale_account = next_account_info(account_info_iter)?;
         let presale_info = Presale::unpack(&presale_account.try_borrow_data()?)?;
         let presale_token_program = next_account_info(account_info_iter)?;
+        let system_program = next_account_info(account_info_iter)?;
         let pda_account = next_account_info(account_info_iter)?;
-        let presale_token_mint = Mint::unpack(&pda_token_account.data.borrow())?;
-        let amount_out = amount_in_sol * presale_info.token_price * (10u64.pow(presale_token_mint.decimals as u32));
+        let amount_out = (amount_in_sol * presale_info.token_price)/1000000000;
 
         // Performs necessary checks
-        let clock = Clock::from_account_info(buyer_presale_token_account)?;
+        let clock = Clock::get()?;
         let current_ts = clock.unix_timestamp as u64;
         if current_ts < presale_info.start_ts {
             return Err(PresaleError::PresaleNotStarted.into());
@@ -127,10 +128,13 @@ impl Processor {
             return Err(PresaleError::InsufficientPresaleTokenBalance.into());
         }
         // Transfers solana to the presale owner
-        invoke_signed(
-            &system_instruction::transfer(buyer.key, presale_owner_account.key, amount_in_sol),
-            &[buyer.clone()],
-            &[]
+        invoke(
+            &system_instruction::transfer(
+                buyer.key,
+                presale_owner_account.key,
+                amount_in_sol
+            ),
+            &[buyer.clone(), presale_owner_account.clone(), system_program.clone()],
         )?;
         // Transfer presale token to buyer
         let token_transfer_ix = spl_token::instruction::transfer(
@@ -149,7 +153,7 @@ impl Processor {
                 pda_account.clone(),
                 presale_token_program.clone(),
             ],
-            &[&[&b"escrow"[..], &[bump_seed]]],
+            &[&[&b"presale"[..], &[bump_seed]]],
         )?;
         Ok(())
     }

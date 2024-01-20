@@ -1,2 +1,5 @@
 /target
 .idea/
+script/node_modules
+test-ledger
+script/test-ledger

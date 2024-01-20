@@ -1,7 +1,6 @@
 use std::convert::TryInto;
 use solana_program::program_error::ProgramError;
 use crate::error::PresaleError::InvalidInstruction;
-use arrayref::array_refs;
 
 pub enum PresaleInstruction {
 
@@ -11,9 +10,10 @@ pub enum PresaleInstruction {
     /// Accounts expected:
     ///
     /// 0. `[signer]` The account of the owner of the presale
-    /// 1. `[writable]` Temporary token account that should be created prior to this instruction and owned by the presale owner
+    /// 1. `[writable]` Presale token account that should be created prior to this instruction and owned by the presale owner
     /// 2. `[writable]` The presale account, which holds all necessary info about the presale.
-    /// 3. `[]` The token program of the presale token
+    /// 3. `[]` The rent sysvar
+    /// 4. `[]` The token program of the presale token
     InitPresale {
         start_timestamp: u64,
         token_price: u64
@@ -29,7 +29,8 @@ pub enum PresaleInstruction {
     /// 3. `[writable]` The Presale owner main account to get the sol
     /// 4. `[writable]` The Presale account holding the presale info
     /// 5. `[]` The token program
-    /// 6. `[]` The PDA account
+    /// 6. `[]` The system program
+    /// 7. `[]` The PDA account
     BuyToken {
         amount_in_sol: u64
     }
@@ -42,11 +43,8 @@ impl PresaleInstruction {
         Ok(
             match tag {
                 0 => {
-                    let (
-                        _,
-                        start_ts_arr,
-                        token_price_arr,
-                    ) = array_refs![input, 1, 8, 8];
+                    let start_ts_arr = &input[1..9];
+                    let token_price_arr = &input[9..17];
                     Self::InitPresale {
                         start_timestamp: Self::unpack_u64(start_ts_arr)?,
                         token_price: Self::unpack_u64(token_price_arr)?
