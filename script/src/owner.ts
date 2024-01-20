@@ -145,17 +145,6 @@ const owner = async () => {
             "PresaleTokenAccountPubkey has not been set correctly"
         );
         process.exit(1);}
-    // } else if (decodedPresaleState.tokenPrice != Uint8Array.of(...new BN(terms.token_price).toArray("le", 8))) {
-    //     console.log(decodedPresaleState.tokenPrice);
-    //     console.log(Uint8Array.of(...new BN(terms.token_price).toArray("le", 8)).buffer);
-    //     logError("Token price not set correctly");
-    //     process.exit(1)
-    // }
-    // } else if (decodedPresaleState.startTs != Uint8Array.of(...new BN(terms.start_time).toArray("le", 8))) {
-    //     console.log(decodedPresaleState.startTs);
-    //     console.log(Uint8Array.of(...new BN(terms.start_time).toArray("le", 8)).buffer)
-    //     logError("Start time not set correctly");
-    //     process.exit(1)
 
     writePublicKey(presaleKeyPair.publicKey, "presale");
     console.table([
