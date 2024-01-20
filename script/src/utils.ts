@@ -8,32 +8,32 @@ export const logError = (msg: string) => {
     console.log(`\x1b[31m${msg}\x1b[0m`);
 };
 
-export const writePublicKey = (publicKey: PublicKey, name: string) => {
+export const writePublicKey = (publicKey: PublicKey, name: string, network: String = "localnet") => {
     fs.writeFileSync(
-        `./keys/${name}_pub.json`,
+        `./keys/${network}/${name}_pub.json`,
         JSON.stringify(publicKey.toString())
     );
 };
 
-export const getPublicKey = (name: string) =>
+export const getPublicKey = (name: string, network: String = "localnet") =>
     new PublicKey(
-        JSON.parse(fs.readFileSync(`./keys/${name}_pub.json`) as unknown as string)
+        JSON.parse(fs.readFileSync(`./keys/${network}/${name}_pub.json`) as unknown as string)
     );
 
-export const getPrivateKey = (name: string) =>
+export const getPrivateKey = (name: string, network: String = "localnet") =>
     Uint8Array.from(
-        JSON.parse(fs.readFileSync(`./keys/${name}.json`) as unknown as string)
+        JSON.parse(fs.readFileSync(`./keys/${network}/${name}.json`) as unknown as string)
     );
 
-export const getKeypair = (name: string) =>
+export const getKeypair = (name: string, network: String = "localnet") =>
     new Keypair({
-        publicKey: getPublicKey(name).toBytes(),
-        secretKey: getPrivateKey(name),
+        publicKey: getPublicKey(name, network).toBytes(),
+        secretKey: getPrivateKey(name, network),
     });
 
-export const getProgramId = () => {
+export const getProgramId = (network: String = "localnet") => {
     try {
-        return getPublicKey("program");
+        return getPublicKey("program", network);
     } catch (e) {
         logError("Given programId is missing or incorrect");
         process.exit(1);
