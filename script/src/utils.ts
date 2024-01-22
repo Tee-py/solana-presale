@@ -9,8 +9,10 @@ export const logError = (msg: string) => {
 };
 
 export const writePublicKey = (publicKey: PublicKey, name: string, network: String = "localnet") => {
+    const path = `./keys/${network}/${name}_pub.json`
+    console.log(`Writing Public Key To: ${path}`)
     fs.writeFileSync(
-        `./keys/${network}/${name}_pub.json`,
+        path,
         JSON.stringify(publicKey.toString())
     );
 };
